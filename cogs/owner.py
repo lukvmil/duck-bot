@@ -63,9 +63,9 @@ class OwnerCog(commands.Cog):
         os.system('git pull')
         await ctx.send('Got update.')
         await ctx.send('Reloading all cogs...')
-        await self.reload('cogs.owner')
-        await self.reload('cogs.ticker')
-        await self.reload('cogs.txn')
+        await self.reload(ctx, 'cogs.owner')
+        await self.reload(ctx, 'cogs.ticker')
+        await self.reload(ctx, 'cogs.txn')
     
 
 def setup(bot):
