@@ -13,6 +13,7 @@ class OwnerCog(commands.Cog):
 
     @commands.command(name='load', hidden=True)
     @commands.is_owner()
+    @commands.has_any_role('admin', 'Community Duck')
     async def load(self, ctx, *, cog: str):
         try:
             self.bot.load_extension(cog)
@@ -23,6 +24,7 @@ class OwnerCog(commands.Cog):
     
     @commands.command(name='unload', hidden=True)
     @commands.is_owner()
+    @commands.has_any_role('admin', 'Community Duck')
     async def unload(self, ctx, *, cog: str):
         try:
             self.bot.unload_extension(cog)
@@ -33,6 +35,7 @@ class OwnerCog(commands.Cog):
     
     @commands.command(name='reload', hidden=True)
     @commands.is_owner()
+    @commands.has_any_role('admin', 'Community Duck')
     async def reload(self, ctx, *, cog: str):
         try:
             self.bot.unload_extension(cog)
