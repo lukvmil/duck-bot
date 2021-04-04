@@ -1,5 +1,6 @@
 from discord.ext import commands
 import discord
+import os
 
 class OwnerCog(commands.Cog):
     
@@ -54,17 +55,17 @@ class OwnerCog(commands.Cog):
 
     @commands.command()
     async def ping(self, ctx):
-        print(ctx.author.id)
-        # await ctx.send('pong :wink:')
-        await ctx.send(
-            embed=discord.Embed(description="0.1 :duck: TRANSFER zil1y76r2hteww2v0kjfergalexa9u3m28xqywcd73 → zil1hdn75udaj43sh5fht0w7dtm7uvhqsqlzrrvxau [tx](https://viewblock.io)", color=0xFF5733)
-        )
-        await ctx.send(
-            embed=discord.Embed(description="0.15 :duck: SELL zil1ynknmtrg58c2df54k806ev7h76ntmq9adnj4j2 [tx](https://viewblock.io)", color=0xFF5733)
-        )
-        await ctx.send(
-            embed=discord.Embed(description="0.5 :duck: LIQUIDITY ADD zil10pgrrvrx7nmz8v8aufe7324sr6ceqta5udtlcm [tx](https://viewblock.io)", color=0xFF5733)
-        )
+        await ctx.send('pong :wink:')
+    
+    @commands.command()
+    @commands.is_owner()
+    async def get_update(self, ctx):
+        os.system('git pull')
+        ctx.send('Got update.')
+        ctx.send('Reloading all cogs...')
+        self.reload('cogs.owner')
+        self.reload('cogs.ticker')
+        self.reload('cogs.txn')
     
 
 def setup(bot):
