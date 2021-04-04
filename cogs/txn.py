@@ -66,7 +66,11 @@ class TxnCog(commands.Cog):
                 user_obj = await self.bot.fetch_user(user['user_id'])
                 await ctx.send(user_obj.mention)
             else:
-                await ctx.send('idk who that is :kek:')
+                await ctx.send('idk who that is :sob:')
+    
+    @commands.command()
+    async def contract(self, ctx):
+        await ctx.send(consts.DUCK_ID)
 
     @tasks.loop(seconds=60.0)
     async def update_tx(self):
