@@ -15,7 +15,7 @@ class TickerCog(commands.Cog):
         self.update_ticker.cancel()
         print('Stopped update_ticker()')
 
-    @tasks.loop(seconds=10.0)
+    @tasks.loop(seconds=60.0)
     async def update_ticker(self):
         # getting DUCK -> ZIL exchange
         r = requests.get('https://api.zilstream.com/rates/latest')
