@@ -46,8 +46,9 @@ class TxnCog(commands.Cog):
     
     @commands.command(aliases=['whois'])
     async def who_is(self, ctx, in_str: str):
-        if in_str.startswith('<@!'):
-            user_id = int(in_str.replace('<@!', '').replace('>', ''))
+        print(in_str)
+        if in_str.startswith('<@'):
+            user_id = int(in_str.replace('<@', '').replace('>', '').replace('!', ''))
 
             addr = storage.get_addr(user_id)
 
