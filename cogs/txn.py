@@ -64,7 +64,7 @@ class TxnCog(commands.Cog):
 
             if user:
                 user_obj = await self.bot.fetch_user(user['user_id'])
-                await ctx.send(user_obj.mention)
+                await ctx.send(user_obj.name)
             else:
                 await ctx.send('idk who that is :sob:')
     
