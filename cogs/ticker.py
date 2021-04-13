@@ -19,19 +19,26 @@ class TickerCog(commands.Cog):
     async def update_ticker(self):
         # getting DUCK -> ZIL exchange
         r = requests.get('https://api.zilstream.com/rates/latest')
-        rates = json.loads(r.text)
+        try:
+            rates = json.loads(r.text)
+            duck_price = 0
 
-        duck_price = 0
+            for rate in rates:
+                if rate['symbol'] == 'DUCK':
+                    duck_price = rate['rate']
+        except json.decoder.JSONDecodeError:
+            print("Couldn't get DUCK price, got this instead:", r.text)
 
-        for rate in rates:
-            if rate['symbol'] == 'DUCK':
-                duck_price = rate['rate']
+        
 
         # getting ZIL -> USD exchange
         r = requests.get('https://api.coingecko.com/api/v3/simple/price?ids=zilliqa&vs_currencies=usd')
-        rates = json.loads(r.text)
-
-        zil_price = rates['zilliqa']['usd']
+        try:
+            rates = json.loads(r.text)
+            zil_price = rates['zilliqa']['usd']
+        except json.decoder.JSONDecodeError:
+            print("Couldn't get ZIL price, got this instead:", r.text)
+            
 
         duck_price_usd = zil_price * duck_price
 

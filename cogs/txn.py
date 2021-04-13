@@ -39,8 +39,13 @@ class TxnCog(commands.Cog):
     @commands.command(aliases=['setwallet'])
     async def set_wallet(self, ctx, addr: str):
         if addr[0:3] == 'zil':
-            storage.add_wallet(addr, ctx.author.id)
-            await ctx.send(f'Wallet linked {ctx.author.mention} → {addr}')
+            r = storage.add_wallet(addr, ctx.author.id)
+            if r == 'collision':
+                await ctx.send(f'That wallet is already in use...')
+            elif r == 'update':
+                await ctx.send(f'Updated wallet {ctx.author.mention} → {addr}')
+            elif r == 'new':
+                await ctx.send(f'Wallet linked {ctx.author.mention} → {addr}')
         else:
             await ctx.send(f'Please enter a valid wallet address')
     
@@ -64,8 +69,11 @@ class TxnCog(commands.Cog):
             print(in_str, user)
 
             if user:
-                user_obj = await self.bot.fetch_user(user['user_id'])
-                await ctx.send(user_obj.name)
+                if user['type'] == 'user':
+                    user_obj = await self.bot.fetch_user(user['user_id'])
+                    await ctx.send(user_obj.name)
+                elif user['type'] == 'other':
+                    await ctx.send(user['name'])
             else:
                 await ctx.send('idk who that is :sob:')
     

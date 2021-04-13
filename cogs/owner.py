@@ -12,7 +12,6 @@ class OwnerCog(commands.Cog):
         print('Unloaded OwnerCog')
 
     @commands.command(name='load', hidden=True)
-    @commands.is_owner()
     @commands.has_any_role('admin', 'Community Duck')
     async def load(self, ctx, *, cog: str):
         try:
@@ -23,7 +22,6 @@ class OwnerCog(commands.Cog):
             await ctx.send('Success!')
     
     @commands.command(name='unload', hidden=True)
-    @commands.is_owner()
     @commands.has_any_role('admin', 'Community Duck')
     async def unload(self, ctx, *, cog: str):
         try:
@@ -34,7 +32,6 @@ class OwnerCog(commands.Cog):
             await ctx.send('Success!')
     
     @commands.command(name='reload', hidden=True)
-    @commands.is_owner()
     @commands.has_any_role('admin', 'Community Duck')
     async def reload(self, ctx, *, cog: str):
         try:
