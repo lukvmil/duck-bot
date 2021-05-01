@@ -92,75 +92,79 @@ class TxnCog(commands.Cog):
             soup = BeautifulSoup(r.text, "html.parser")
             script_tag = soup.find("script")
 
-            if script_tag:
-                # extracts json from html, contains list of transactions
-                d = json.loads(script_tag.string.replace(
-                    'window.__INITIAL_STATE__ = ', ''))
-                txs = d['main']['address']['zilliqa']['map'][consts.DUCK_ID]['txs']['docs']
+            try:
+                if script_tag:
+                    # extracts json from html, contains list of transactions
+                    d = json.loads(script_tag.string.replace(
+                        'window.__INITIAL_STATE__ = ', ''))
+                    txs = d['main']['address']['zilliqa']['map'][consts.DUCK_ID]['txs']['docs']
 
-                # starts fresh on run, doesn't show old tx
-                if not self.last_time_stamp:
-                    self.last_time_stamp = txs[0]['timestamp']
+                    # starts fresh on run, doesn't show old tx
+                    if not self.last_time_stamp:
+                        self.last_time_stamp = txs[0]['timestamp']
 
-                # reverses so oldest to newest
-                for tx in txs[::-1]:
-                    # checks if tx is newer than the last one received
-                    if tx['timestamp'] > self.last_time_stamp:
-                        from_id = tx['from']
-                        to_id = tx['to']
-                        raw_value = int(tx['value'])
+                    # reverses so oldest to newest
+                    for tx in txs[::-1]:
+                        # checks if tx is newer than the last one received
+                        if tx['timestamp'] > self.last_time_stamp:
+                            from_id = tx['from']
+                            to_id = tx['to']
+                            raw_value = int(tx['value'])
 
-                        # looking for to, from wallets in lookup table
-                        name = await storage.get_name(self.bot, from_id)
-                        if name:
-                            from_ = '[' + self.demoji(name) + ']'
-                        else:
-                            from_ = from_id
-
-                        name = await storage.get_name(self.bot, to_id)
-                        if name:
-                            to_ = '[' + self.demoji(name) + ']'
-                        else:
-                            to_ = to_id
-
-                        # 2 decimal DUCK
-                        value = raw_value / 100
-
-                        r = requests.get(
-                            'https://viewblock.io/zilliqa/tx/' + tx['hash'])
-                        soup = BeautifulSoup(r.text, "html.parser")
-                        script_tag = soup.find("script")
-
-                        if script_tag:
-                            # extracts json from html, contains list of transactions
-                            d = json.loads(script_tag.string.replace(
-                                'window.__INITIAL_STATE__ = ', ''))
-                            tx_function = d['main']['tx']['zilliqa']['map'][tx['hash']]['extra']['method']
-
-                            if tx_function == 'SwapExactZILForTokens' or tx_function == 'SwapZILForExactTokens':
-                                tx_type = 'BUY'
-                            elif tx_function == 'SwapExactTokensForZIL' or tx_function == 'SwapTokensForExactZIL':
-                                tx_type = 'SELL'
-                            elif tx_function == 'AddLiquidity':
-                                tx_type = 'ADD LIQ'
-                            elif tx_function == 'RemoveLiquidity':
-                                tx_type = 'RM LIQ'
-                            elif tx_function == 'Transfer':
-                                tx_type = 'SEND'
-                            elif tx_function == 'SwapExactTokensForTokens' or tx_function == 'SwapTokensForExactTokens':
-                                tx_type = 'SWAP'
+                            # looking for to, from wallets in lookup table
+                            name = await storage.get_name(self.bot, from_id)
+                            if name:
+                                from_ = '[' + self.demoji(name) + ']'
                             else:
-                                tx_type = tx_function
-                                print('New tx_type:', tx_function)
+                                from_ = from_id
 
-                        await tx_channel.send(
-                            '`{:>5} DUCK {:<9} {:<42} → {:<42} `\n|| https://viewblock.io/zilliqa/tx/{} ||'.format(
-                                value, '<' + tx_type + '>', from_, to_, tx['hash'])
-                        )
+                            name = await storage.get_name(self.bot, to_id)
+                            if name:
+                                to_ = '[' + self.demoji(name) + ']'
+                            else:
+                                to_ = to_id
 
-                # starting place for next tx check
-                self.last_time_stamp = txs[0]['timestamp']
+                            # 2 decimal DUCK
+                            value = raw_value / 100
 
+                            r = requests.get(
+                                'https://viewblock.io/zilliqa/tx/' + tx['hash'])
+                            soup = BeautifulSoup(r.text, "html.parser")
+                            script_tag = soup.find("script")
+
+                            if script_tag:
+                                # extracts json from html, contains list of transactions
+                                d = json.loads(script_tag.string.replace(
+                                    'window.__INITIAL_STATE__ = ', ''))
+                                tx_function = d['main']['tx']['zilliqa']['map'][tx['hash']]['extra']['method']
+
+                                if tx_function == 'SwapExactZILForTokens' or tx_function == 'SwapZILForExactTokens':
+                                    tx_type = 'BUY'
+                                elif tx_function == 'SwapExactTokensForZIL' or tx_function == 'SwapTokensForExactZIL':
+                                    tx_type = 'SELL'
+                                elif tx_function == 'AddLiquidity':
+                                    tx_type = 'ADD LIQ'
+                                elif tx_function == 'RemoveLiquidity':
+                                    tx_type = 'RM LIQ'
+                                elif tx_function == 'Transfer':
+                                    tx_type = 'SEND'
+                                elif tx_function == 'SwapExactTokensForTokens' or tx_function == 'SwapTokensForExactTokens':
+                                    tx_type = 'SWAP'
+                                else:
+                                    tx_type = tx_function
+                                    print('New tx_type:', tx_function)
+
+                            await tx_channel.send(
+                                '`{:>5} DUCK {:<9} {:<42} → {:<42} `\n|| https://viewblock.io/zilliqa/tx/{} ||'.format(
+                                    value, '<' + tx_type + '>', from_, to_, tx['hash'])
+                            )
+
+                    # starting place for next tx check
+                    self.last_time_stamp = txs[0]['timestamp']
+            
+            except (json.decoder.JSONDecodeError, KeyError) as e:
+                print("Couldn't get transaction")
+                print(e)
 
 def setup(bot):
     bot.add_cog(TxnCog(bot))
