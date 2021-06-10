@@ -8,7 +8,7 @@ class OwnerCog(commands.Cog):
         print('Loaded OwnerCog')
         self.bot = bot
     
-    def unload_cog(self):
+    def cog_unload(self):
         print('Unloaded OwnerCog')
 
     @commands.command(name='load', hidden=True)
